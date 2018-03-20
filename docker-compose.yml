@@ -1,0 +1,14 @@
+version: '2'
+services:
+  app:
+    env_file:
+      - ./.env
+    build: .
+    image: udemy/weather-app
+    environment:
+      NODE_ENV: development
+    ports:
+      - '8000:8000'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
