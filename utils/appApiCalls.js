@@ -1,82 +1,97 @@
 "use strict";
 
 const request = require('request');
-const { get } = require('lodash');
+const { get, forEach, toLower } = require('lodash');
+const axios = require('axios');
+const moment = require('moment');
+
 
 const util = require('./config/config');
 
 
-
-const geoCodeAddress = (address, callback) => {
-
-  const url = util.geoApi;
-  const param = {
-    address : encodeURIComponent(address)
-  }
-
-  request({
-    url: `${url}?address=${param.address}`,
-    json: true
-  }, (error, response, body) => {
-    /**
-    * if you want to pretty print the object you can run
-    * JSON.stringify( body , undefined, 2) // 2 being the number of indents
-    */
-
-    if ( error ) return callback('Unable to connect to google server.');
-
-    if ( body.status == 'ZERO_RESULTS') return callback('Unable to find address.');
-
-    if ( body.status === 'OVER_QUERY_LIMIT') return callback(body.error_message);
+const forecastFeature = ( res, forcast ) => {
+  forEach( res[forcast].data, (day) => {
+    const days = moment(day.time * 1000).format('dddd');
+    console.log(`${days} temperature high is ${day.temperatureHigh} and temperature low is ${day.temperatureLow}`);
+  });
+}
 
 
-    const results = body.results[0];
+const getWeather = ( address, forcast ) => {
+
+  const addressUrl = util.geoApi;
+
+  return axios.get(addressUrl, {
+    params: {
+      address: address
+    }
+  })
+  .then(( response ) => {
+
+    if ( response.data.status == 'ZERO_RESULTS') throw new Error ('Unable to find the address.')
+
+    const results = response.data.results[0];
     const address = get(results, 'formatted_address', '');
     const location = get(results, ['geometry', 'location'], '');
     const latitude = location.lat;
     const longitude = location.lng;
 
+    console.log('----------------------------------------------------------------------');
 
-    callback(undefined, {
-      address: address,
-      latitude: latitude,
-      longitude: longitude
-    });
+    console.log('The weather based on this address:', address);
+    // console.log('The lat returned:', latitude);
+    // console.log('The long returned:', longitude);
+
+    const weatherUrl = util.forecastApi;
+    const weatherAPIKey = process.env.WEATHERAPI;
+
+    const param = {
+        lat : encodeURIComponent(latitude),
+        long: encodeURIComponent(longitude)
+      }
+
+    return axios.get(`${weatherUrl}/${weatherAPIKey}/${latitude},${longitude}`);
 
   })
+  .then( (res) => {
 
+    //console.log('res', JSON.stringify(res.data.daily, undefined, 2));
+
+    const temperature = res.data.currently.temperature;
+    const apparentTemperature = res.data.currently.apparentTemperature;
+
+    console.log(`current temperature is, ${temperature}, but it actually feels like ${apparentTemperature}`);
+
+    console.log('----------------------------------------------------------------------');
+
+    switch (toLower(forcast)) {
+      case 'daily':
+        forecastFeature( res.data, forcast );
+        break;
+      case 'mintue':
+        console.log('This feature coming soon.');
+        break;
+      case 'hourly':
+        console.log('This feature coming soon');
+        break;
+      case 'nothing selected':
+        console.log('You can check the weather hourly too if you want');
+        break;
+      default:
+        console.log('Invalid forcast options');
+
+    }
+
+  })
+  .catch(( error ) => {
+    if ( error.code == 'ENOTFOUND' ) return console.log('Unable to connect to serve API');
+
+    console.log(error.message);
+  })
 }
 
 
-const getWeather = (lat, long, address, callback) => {
-
-  const url = util.forecastApi;
-  const weatherAPIKey = process.env.WEATHERAPI;
-
-
-  const param = {
-    lat : encodeURIComponent(lat),
-    long: encodeURIComponent(long)
-  }
-
-  request({
-    url: `${url}/${weatherAPIKey}/${lat},${long}`,
-    json: true
-  }, (error, response, body) => {
-
-    if ( error ) return callback('Unable to connect to Forecast.io server');
-
-    if ( response.statusCode === 404 ) return callback('Unable to fetch weather');
-
-    callback(undefined, {
-      temperature: body.currently.temperature,
-      apparentTemperature: body.currently.apparentTemperature
-    });
-  });
-};
-
 
 module.exports = {
-  geoCodeAddress,
   getWeather
 };
