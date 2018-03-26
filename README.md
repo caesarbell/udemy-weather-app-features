@@ -11,8 +11,8 @@ Inside the container, you have access to the scripts. With this project there a 
 
 For the promises thats where things diff from the video a little. The promise logic live inside the root of the playground folder, but calling the functions you have to run the following scripts `node playground/functions/asyncAdd.js`, this script will run a basic function that wraps around a promise, it takes in two integers and adds them, and takes the sum of that and adds it to 10. By default there is another basic promise being called. this method that is wrapping the promise is called *somePromise* , it uses setTimeout to illustrate a 2 second delay. For the last one, `node playground/functions/geoCodeAddress.js` actually triggers a google maps API to get the latitude and longitude, and spits back an address.
 
-## API Token & URLs 
-The API Token for the weather app rest inside the .env file and with the config.js file, you can find the URLs for the APIs.
+## API Token & URLs
+The API Token for the weather app rest inside the .env (which you should replace the x's with your access token), as you can see in the .env-example file. The config.js file, you can find the URLs for the APIs.
 
 
 ## The App
