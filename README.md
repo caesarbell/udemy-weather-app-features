@@ -4,9 +4,19 @@
 This weather app is built from the udemy course, with some extra touches on it. It uses docker as the environment. So all you have to do is clone the project `git clone git@github.com:caesarbell/udemy-weather-app-features.git`.
 
 ## Running the app
-To build the image against the `Dockerfile`  run `docker image build -t {name-your-image} .`. This will build your image locally "I don't have it on [docker hub](hub.docker.com) :( - It's not worthy". Once the image is build run `docker container  run --rm  -p 8000:8000 --env-file .env {name-of-your-image} node app.js --help` this will list the options available for the weather app. The `-p 8000:8000` is because the app runs on port **8000:8000**  and don't forget to login into [darksky](https://darksky.net/dev) and create your **API Key**. Take that API Key and create your `.env` file in the root of the app and add in your key in the **WEATHERAPI** env variable.
+To build the image against the `Dockerfile`  run `docker image build -t {name-your-image} .`. This will build your image locally "I don't have it on [docker hub](hub.docker.com) :( - It's not worthy". Once the image is build run `docker container  run --rm  -p 8000:8000 --env-file .env {name-your-image} node app.js --help` this will list the options available for the weather app. The `-p 8000:8000` is because the app runs on port **8000:8000**  and don't forget to login into [darksky](https://darksky.net/dev) and create your **API Key**. Take that API Key and create your `.env` file in the root of the app and add in your key in the **WEATHERAPI** env variable.
 
 Any code after the image name is consider the commands that will be ran inside the container. To see more on the commands to run look at the **Running the sripts** & **The App** section.
+
+
+## Updating the app (adding your own flavor)
+
+If you want to build on this app, and add your own files and wonderful functions, you can do this easily. But make sure you bind your files and or directories to the container first. This points your files on your local host (local machine) to your containers files. Binding happens when you use the `-v` flag.
+
+code: `docker container run --rm -it -p 8000:8000 -v ${pwd}:/usr/src/app/ --env-file .env {name-your-image} bash`
+example: `docker container run -it --rm -p 8000:8000 -v $(pwd):/usr/src/app --env-file .env weatherappdocker bash`
+
+**Note** binding can only happen on run time, so you can't add this to the Dockerfile, it has to be added in the CLI when running the container. and `${pwd}` provides the working folder path, easier then typing it all out.
 
 
 ## Running the scripts
