@@ -55,7 +55,7 @@ const getWeather = ( address, forcast ) => {
   })
   .then( (res) => {
 
-    //console.log('res', JSON.stringify(res.data.daily, undefined, 2));
+    //console.log('res', JSON.stringify(res.data, undefined, 2));
 
     const temperature = res.data.currently.temperature;
     const apparentTemperature = res.data.currently.apparentTemperature;
@@ -75,7 +75,7 @@ const getWeather = ( address, forcast ) => {
         console.log('This feature coming soon');
         break;
       case 'nothing selected':
-        console.log('You can check the weather hourly too if you want');
+        console.log('You can check the weather daily too if you want');
         break;
       default:
         console.log('Invalid forcast options');

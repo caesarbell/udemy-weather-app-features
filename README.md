@@ -18,6 +18,7 @@ For the promises thats where things diff from the video a little. The promise lo
 There are two API being hit, one by **googleapis** and the other **darksky**. Both are in an object that are exported from config.js file.
 
 
+
 ## The App
 To get the app running you can run the following script `node app.js` but with this script you have two options you can run. To see the options you can run `node app.js --help`, here you can see a list of options for this app.  For example if you want the weather based on your address or zip you can run the following script `node app.js -a "12603"`. You can also get the weather for the next 7 days, by running the following script `node app.js -a "12601" -f "daily"`.
 
