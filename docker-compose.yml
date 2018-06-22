@@ -1,0 +1,26 @@
+version: '3'
+
+services: 
+  app: 
+    build: .
+    container_name: weather-app 
+    command: npm run build
+    env_file: .env
+    ports:
+      - 3000:3000
+    links:
+      - lambda
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/node_modules
+
+  lambda:
+    build: .
+    container_name: weather-app-backend
+    command: npm run lambda
+    env_file: .env
+    ports:
+      - 9000:9000
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules

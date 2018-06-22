@@ -10,14 +10,23 @@ const util = require('./config/config');
 
 
 const forecastFeature = ( res, forcast ) => {
+  const results = []; 
+
   forEach( res[forcast].data, (day) => {
     const days = moment(day.time * 1000).format('dddd');
+
     console.log(`${days} temperature high is ${day.temperatureHigh} and temperature low is ${day.temperatureLow}`);
+
+    results.push(`${days} temperature high is ${day.temperatureHigh} and temperature low is ${day.temperatureLow}`); 
+
+    return results; 
   });
 }
 
 
 const getWeather = ( address, forcast ) => {
+
+  console.log( 'address', address); 
 
   const addressUrl = util.geoApi;
 
@@ -36,11 +45,8 @@ const getWeather = ( address, forcast ) => {
     const latitude = location.lat;
     const longitude = location.lng;
 
-    console.log('----------------------------------------------------------------------');
 
-    console.log('The weather based on this address:', address);
-    // console.log('The lat returned:', latitude);
-    // console.log('The long returned:', longitude);
+    //console.log('The weather based on this address:', address);
 
     const weatherUrl = util.forecastApi;
     const weatherAPIKey = process.env.WEATHERAPI;
@@ -60,9 +66,11 @@ const getWeather = ( address, forcast ) => {
     const temperature = res.data.currently.temperature;
     const apparentTemperature = res.data.currently.apparentTemperature;
 
-    console.log(`current temperature is, ${temperature}, but it actually feels like ${apparentTemperature}`);
+    //console.log(`current temperature is, ${temperature}, but it actually feels like ${apparentTemperature}`);
 
-    console.log('----------------------------------------------------------------------');
+    console.log('forcast', forcast);
+
+    const results = '';
 
     switch (toLower(forcast)) {
       case 'daily':
@@ -74,12 +82,10 @@ const getWeather = ( address, forcast ) => {
       case 'hourly':
         console.log('This feature coming soon');
         break;
-      case 'nothing selected':
-        console.log('You can check the weather hourly too if you want');
-        break;
       default:
-        console.log('Invalid forcast options');
-
+        console.log(`current temperature is, ${temperature}, but it actually feels like ${apparentTemperature}`);
+        return results = `current temperature is, ${temperature}, but it actually feels like ${apparentTemperature}`;
+        
     }
 
   })
@@ -88,6 +94,7 @@ const getWeather = ( address, forcast ) => {
 
     console.log(error.message);
   })
+
 }
 
 

@@ -1,2 +1,12 @@
 # ENV File
 .env 
+
+# NPM installed modules 
+node_modules
+
+# Build directory
+/public
+.DS_Store
+
+# Deployed lambda functions 
+/lambda/*.js
