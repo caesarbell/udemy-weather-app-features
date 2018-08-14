@@ -7,4 +7,12 @@
 
 "use strict";
 
-console.log('hello world');
+import React from 'react'; 
+import ReactDOM from 'react-dom';
+
+import WeatherPageContainer from './components/containers/weatherApp/weatherPageContainer';
+
+import './main.scss';
+
+
+ReactDOM.render(React.createElement(WeatherPageContainer), document.getElementById('root'));

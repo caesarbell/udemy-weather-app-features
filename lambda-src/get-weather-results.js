@@ -4,10 +4,11 @@ exports.handler = function(event, context, callback) {
 
     console.log('event', event.body);
 
-    const address = event.body.address; 
-    const forcast = event.body.forcast;
+    const results = JSON.parse(event.body);
 
-    console.log('address passed in', address);
+    const address = results.address; 
+    const forcast = results.forcast;
+    
 
     appApi.getWeather(address, forcast)
         .then((res) => {
@@ -15,10 +16,7 @@ exports.handler = function(event, context, callback) {
 
             callback(null, {
                 statusCode: 200,
-                header: {
-                    'Content-Type': 'application/json'
-                },
-                body: 'working'
+                body: JSON.stringify(res)
             })
         })
         .catch(callback)

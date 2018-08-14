@@ -11,89 +11,95 @@ const util = require('./config/config');
 
 const forecastFeature = ( res, forcast ) => {
   const results = []; 
+  console.log('res', res.daily);
 
   forEach( res[forcast].data, (day) => {
     const days = moment(day.time * 1000).format('dddd');
 
-    console.log(`${days} temperature high is ${day.temperatureHigh} and temperature low is ${day.temperatureLow}`);
+    results.push({day: days, hight: day.temperatureHigh, low: day.temperatureLow}); 
 
-    results.push(`${days} temperature high is ${day.temperatureHigh} and temperature low is ${day.temperatureLow}`); 
-
-    return results; 
   });
+
+  return results; 
 }
 
 
-const getWeather = ( address, forcast ) => {
+const getWeatherLocationData = (url, key, lat, long) => {
+
+  return axios.get(`${url}/${key}/${lat},${long}`)
+    .then((res) => {
+        console.log('status in get location data', res.status); 
+
+      if (res.status === 400) throw new Error('Connection issue, try again'); 
+
+        return res; 
+    })
+
+}
+
+const getLatAndLong = (url, address) => {
+
+  return axios.get(url, {
+    params: {
+      address: address
+    }
+  }).then((res) => {
+
+    console.log('status in get lat', res.status); 
+
+    return res; 
+  }); 
+
+}
+
+
+ const getWeather = ( address, forcast ) => {
 
   console.log( 'address', address); 
 
   const addressUrl = util.geoApi;
 
-  return axios.get(addressUrl, {
-    params: {
-      address: address
-    }
-  })
-  .then(( response ) => {
+  return getLatAndLong(addressUrl, address)
+    .then(( response ) => {
 
-    if ( response.data.status == 'ZERO_RESULTS') throw new Error ('Unable to find the address.')
+      console.log('response status', response.status);
 
-    const results = response.data.results[0];
-    const address = get(results, 'formatted_address', '');
-    const location = get(results, ['geometry', 'location'], '');
-    const latitude = location.lat;
-    const longitude = location.lng;
+      if (response.data.status == 'ZERO_RESULTS') throw new Error('Unable to find the address.');
+
+      const results = response.data.results[0];
+      const location = get(results, ['geometry', 'location'], '');
+      const latitude = location.lat;
+      const longitude = location.lng;
 
 
-    //console.log('The weather based on this address:', address);
+      console.log('The weather based on this address:', address);
 
-    const weatherUrl = util.forecastApi;
-    const weatherAPIKey = process.env.WEATHERAPI;
+      const weatherUrl = util.forecastApi;
+      const weatherAPIKey = process.env.WEATHERAPI;
 
-    const param = {
-        lat : encodeURIComponent(latitude),
-        long: encodeURIComponent(longitude)
-      }
 
-    return axios.get(`${weatherUrl}/${weatherAPIKey}/${latitude},${longitude}`);
+      const param = {
+          lat : encodeURIComponent(latitude),
+          long: encodeURIComponent(longitude)
+        }
 
-  })
-  .then( (res) => {
+      return getWeatherLocationData(weatherUrl, weatherAPIKey, latitude, longitude); 
 
-    //console.log('res', JSON.stringify(res.data.daily, undefined, 2));
+    })
+    .then( (res) => {
 
-    const temperature = res.data.currently.temperature;
-    const apparentTemperature = res.data.currently.apparentTemperature;
+      const temperature = res.data.currently.temperature;
+      const apparentTemperature = res.data.currently.apparentTemperature;
 
-    //console.log(`current temperature is, ${temperature}, but it actually feels like ${apparentTemperature}`);
 
-    console.log('forcast', forcast);
+      return forecastFeature(res.data, forcast);
 
-    const results = '';
+    })
+    .catch(( error ) => {
 
-    switch (toLower(forcast)) {
-      case 'daily':
-        forecastFeature( res.data, forcast );
-        break;
-      case 'mintue':
-        console.log('This feature coming soon.');
-        break;
-      case 'hourly':
-        console.log('This feature coming soon');
-        break;
-      default:
-        console.log(`current temperature is, ${temperature}, but it actually feels like ${apparentTemperature}`);
-        return results = `current temperature is, ${temperature}, but it actually feels like ${apparentTemperature}`;
-        
-    }
-
-  })
-  .catch(( error ) => {
-    if ( error.code == 'ENOTFOUND' ) return console.log('Unable to connect to serve API');
-
-    console.log(error.message);
-  })
+      console.log('error message', error.message);
+      return error.message; 
+    })
 
 }
 

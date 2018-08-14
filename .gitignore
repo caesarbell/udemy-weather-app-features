@@ -5,7 +5,7 @@
 node_modules
 
 # Build directory
-/public
+dist/bundle.js 
 .DS_Store
 
 # Deployed lambda functions 
